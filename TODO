@@ -1,0 +1,6 @@
+- generate vite trace files or create a parser to generate vite traces for
+visual analysis
+- add priorities (and new schedule policies using "schedule" functions)
+- simulate MJPEG application
+- how to deal with deadline? not in the simulator
+- how to deal with buffer? (some coin already in the queue BUT not enought)
