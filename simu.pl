@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use File::Copy;
 use Task;
 
 # How many iteration of the main loop :
@@ -11,6 +12,12 @@ my $proc = shift;
 
 # Which application file :
 my $file = shift;
+
+# Which trace file :
+my $trace_file = shift;
+
+# Header template trace file :
+my $header_file = "header.vite";
 
 # Starting global time is null :
 my $global_time = 0;
@@ -50,7 +57,8 @@ for (my $key = 1; $key <= $proc; $key++) {
   $Proc[$key] = 0;
 }
 
-
+# Create the ViTe trace file's header :
+trace_init ($trace_file);
 
 # Main simulator loop :
 while ($iter)
@@ -65,7 +73,7 @@ while ($iter)
   my $min_time = min_time ();
   
   if ($min_time == 0) {
-    print "\tmin time is 0?!\n";
+    #print "\tmin time is 0?!\n";
   }
 
   # reduce components remaining time and set global time :
@@ -80,11 +88,37 @@ while ($iter)
   $iter--;
 }
 
-return 1;
+close FILEHANDLER;
 
 #######################
 # Utility functions : #
 #######################
+
+# Create the ViTe trace file's header with a template and informations from
+# application :
+sub trace_init {
+  my $trace_file = shift;
+  my $color = "1.0 0.0 0.0"; 
+  if ($header_file ne $trace_file) {
+    copy ($header_file, $trace_file) or die "Copy failed: $!";
+  } else {
+    print "Can't have the same filename ($trace_file) as $header_file\n";
+    exit 0;
+  }
+
+  open(TRACEHANDLER, '>>' . $trace_file) or die $!;
+
+  print TRACEHANDLER "1 \"P\" \"0\" \"Processor\"\n";
+  print TRACEHANDLER "3 \"SP\" \"P\" \"Processor State\"\n";
+
+  for (my $proc = 1; $proc <= scalar @Proc; $proc++) {
+    print TRACEHANDLER "7 0 \"P$proc\" \"P\" \"0\" \"P$proc\"\n";
+  }
+
+  foreach my $comp (keys (%Incoming_needed)) {
+    print TRACEHANDLER "6 \"$comp\" \"SP\" \"$comp\" \"$color\"\n";
+  }
+}
 
 # Parse application file and fill structures :
 sub parse_file {
@@ -174,7 +208,7 @@ sub increment_counters {
     foreach my $call (keys (%{$comp->{calls_needed}})) {
       #print "Keys : $call\n";
       if ($comp->{calls_counters}->{$call} == 0) {
-        print "Added on coin in the $call Comp\n";
+        #print "Added on coin in the $call Comp\n";
         $Incoming_counters{$call}++;
         $comp->{calls_counters}->{$call} = $comp->{calls_needed}->{$call};
       }
@@ -197,7 +231,8 @@ sub delete_tasks {
   my @workers = currently_working ();
   foreach my $worker (@workers) {
     if ($Proc[$worker]->{remaining_time} == 0) {
-      print "Ended task $Proc[$worker]->{name} at $global_time on $worker\n"; 
+      #print "Ended task $Proc[$worker]->{name} at $global_time on $worker\n"; 
+      print TRACEHANDLER "12 $global_time \"SP\" \"P$worker\"\n";
       $Proc[$worker] = 0;
     }
   }
@@ -263,7 +298,8 @@ sub schedule_tasks {
       # to change the policy, use 'schedulable_tasks' function :
       if (@Work) {
         $Proc[$ressource] = shift @Work;
-        print "Scheduled task $Proc[$ressource]->{name} on $ressource at time $global_time\n";
+        #print "Scheduled task $Proc[$ressource]->{name} on $ressource at time $global_time\n";
+        print TRACEHANDLER "11 $global_time \"SP\" \"P$ressource\" \"$Proc[$ressource]->{name}\"\n";
       }
     }
   } else {
