@@ -1,0 +1,103 @@
+%EventDef PajeDefineContainerType 1
+% Alias string
+% ContainerType string
+% Name string
+%EndEventDef
+%EventDef PajeDefineStateType 3
+% Alias string
+% ContainerType string
+% Name string
+%EndEventDef
+%EventDef PajeDefineEventType 4
+% Alias string
+% ContainerType string
+% Name string
+%EndEventDef
+%EventDef PajeDefineEntityValue 6
+% Alias string
+% EntityType string
+% Name string
+% Color color
+%EndEventDef
+%EventDef PajeCreateContainer 7
+% Time date 
+% Alias string
+% Type string
+% Container string
+% Name string
+%EndEventDef
+%EventDef PajeDestroyContainer 8
+% Time date 
+% Name string
+% Type string
+%EndEventDef
+%EventDef PajeSetState 10
+% Time date 
+% Type string
+% Container string
+% Value string
+%EndEventDef
+%EventDef PajePushState 11
+% Time date 
+% Type string
+% Container string
+% Value string
+%EndEventDef
+%EventDef PajePopState 12
+% Time date 
+% Type string
+% Container string
+%EndEventDef
+%EventDef PajeNewEvent 20
+% Time date 
+% Type string
+% Container string
+% Value string
+%EndEventDef
+%EventDef PajeDefineLinkType 41
+% Alias string
+% Name string
+% ContainerType string
+% SourceContainerType string
+% DestContainerType string
+%EndEventDef
+%EventDef PajeStartLink 42
+% Time date 
+% Type string
+% Container string
+% SourceContainer string
+% Value string
+% Key string
+%EndEventDef
+%EventDef PajeEndLink 43
+% Time date 
+% Type string
+% Container string
+% DestContainer string
+% Value string
+% Key string
+%EndEventDef
+%EventDef PajeDefineVariableType 50
+% Alias string
+% Name string
+% ContainerType string
+%EndEventDef
+%EventDef PajeSetVariable 51
+% Time date
+% Type string
+% Container string
+% Value double
+%EndEventDef
+%EventDef PajeAddVariable 52
+% Time date
+% Type string
+% Container string
+% Value double
+%EndEventDef
+%EventDef PajeSubVariable 53
+% Time date
+% Type string
+% Container string
+% Value double
+%EndEventDef
+

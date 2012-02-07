@@ -18,29 +18,29 @@ my $global_time = 0;
 # Array of processors :
 my @Proc;
 
-my %Incoming_counters;#how many task of each type received
-my @Work;#global list of tasks
+# How many calls to each component type has been received yet :
+my %Incoming_counters;
+
+# How many calls to each component type has to be received to create one :
+my %Incoming_needed;
+
+# Global list of tasks :
+my @Work;
+
+# Processing Time for every component :
+my %Processing_Time;
+
+# Hash of hashes representing each component bindings :
+my %Calls;
 
 #print "Running $iter iterations with $proc proccessing units";
 
-my %Processing_Time;
-#my %Calls = (
-#  "A"=> {"B" => 1,},
-#  "B"=> {"C" => 10,},
-#  "C"=> {"A"=> 1,},
-#            ):
-my %Calls;
-
-my %Incoming_needed = ();
-#$Incoming_needed{"A"} = 10;
-#$Incoming_needed{"B"} = 1;
-#$Incoming_needed{"C"} = 1;
-
-# rempli la structure incoming_needed :
-# dans le fichier je dois avoir le point de depart (premiere tache à inserer
-# dans @Work pour commencer l'execution :
+# This function parses the application file and fill global structures
+# (Processing_Time, Incoming_needed, Calls) and also create and insert the
+# firsts tasks in the simulator :
 parse_file ($file);
 
+# Incoming counters initialisation :
 foreach my $comp (keys (%Incoming_needed)) {
   $Incoming_counters{$comp} = 0;
 }
@@ -50,49 +50,37 @@ for (my $key = 1; $key <= $proc; $key++) {
   $Proc[$key] = 0;
 }
 
-print "Start The Loop\n";
 
+
+# Main simulator loop :
 while ($iter)
 {
   # suppress ended tasks :
-  #print "delete ended tasks\n";
   delete_tasks ();
 
   # schedule available tasks onto free ressources :
-  #print "schedule available tasks onto free ressources :\n";
   schedule_tasks ();
-
-  # increment global counters :
-  #print "increment global counters\n";
-  increment_counters ();
 
   # find the minimal amount of time to next event :
   my $min_time = min_time ();
   
-  #if ($min_time != 0) {
-  #print "Next step will skip $min_time time unit\n";
+  if ($min_time == 0) {
+    print "\tmin time is 0?!\n";
+  }
 
-    # reduce components remaining time :
-    print "move forward $min_time at $global_time\n";
-
-    move_forward ($min_time);
-    $global_time += $min_time;
-    #}
+  # reduce components remaining time and set global time :
+  move_forward ($min_time);
+  $global_time += $min_time;
 
   # create new tasks in @Work :
-  #print "create new tasks and insert in Work\n";
   increment_counters ();
   create_tasks();
-  delete_tasks ();
 
   # next step :
   $iter--;
-  #print "Current time is $global_time\n";
 }
 
-print "End The Loop\n";
-
-
+return 1;
 
 #######################
 # Utility functions : #
@@ -101,7 +89,7 @@ print "End The Loop\n";
 # Parse application file and fill structures :
 sub parse_file {
   my $file = shift;
-
+  
   open(FILEHANDLER, $file) or die $!;
 
   my $line = <FILEHANDLER>;
