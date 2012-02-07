@@ -3,27 +3,34 @@
 use strict;
 use Task;
 
+# How many iteration of the main loop :
 my $iter = shift;
+
+# How many processors to simulate :
 my $proc = shift;
+
+# Which application file :
 my $file = shift;
+
+# Starting global time is null :
 my $global_time = 0;
 
-my %Proc = ();
+# Array of processors :
+my @Proc;
 
-# Actual coin counter :
-my %Incoming_counters = ();
-my @Work = ();
+my %Incoming_counters;#how many task of each type received
+my @Work;#global list of tasks
 
 #print "Running $iter iterations with $proc proccessing units";
 
 #my %Time = ("A", 2, "B", 5, "C", 1);
-my %Time = ();
+my %Time;
 #my %Calls = (
 #  "A"=> {"B" => 1,},
 #  "B"=> {"C" => 10,},
 #  "C"=> {"A"=> 1,},
 #            ):
-my %Calls = ();
+my %Calls;
 
 my %Incoming_needed = ();
 #$Incoming_needed{"A"} = 10;
@@ -41,7 +48,7 @@ foreach my $comp (keys (%Incoming_needed)) {
 
 # Processing unit list initialisation :
 for (my $key = 1; $key <= $proc; $key++) {
-  $Proc{$key} = 0;
+  $Proc[$key] = 0;
 }
 
 print "Start The Loop\n";
@@ -193,18 +200,18 @@ sub currently_executed {
   my @result = ();
   my @workers = currently_working ();
   foreach my $worker (@workers) {
-    push (@result, $Proc{$worker}); 
+    push (@result, $Proc[$worker]); 
   }
   return @result;
 }
 
-# delete finished tasks from %Proc :
+# delete finished tasks from @Proc :
 sub delete_tasks {
   my @workers = currently_working ();
   foreach my $worker (@workers) {
-    if ($Proc{$worker}->{remaining_time} == 0) {
-      print "Ended task $Proc{$worker}->{name} at $global_time on $worker\n"; 
-      $Proc{$worker} = 0;
+    if ($Proc[$worker]->{remaining_time} == 0) {
+      print "Ended task $Proc[$worker]->{name} at $global_time on $worker\n"; 
+      $Proc[$worker] = 0;
     }
   }
 }
@@ -216,9 +223,9 @@ sub move_forward {
 
   my @currently_working = currently_working ();
   foreach my $key (@currently_working) {
-    $Proc{$key}->{remaining_time} -= $time;
-    foreach my $call (keys (%{$Proc{$key}->{calls_counters}})) {
-      $Proc{$key}->{calls_counters}->{$call} -= $time;
+    $Proc[$key]->{remaining_time} -= $time;
+    foreach my $call (keys (%{$Proc[$key]->{calls_counters}})) {
+      $Proc[$key]->{calls_counters}->{$call} -= $time;
     }
   }
 }
@@ -247,7 +254,7 @@ sub min_time {
 sub currently_working {
   my @result = ();
   for (my $key = 1; $key <= $proc; $key++) {
-    if ($Proc{$key} != 0) {
+    if ($Proc[$key] != 0) {
       #print "$key is currently working\n";
       push (@result, $key);
     }
@@ -268,8 +275,8 @@ sub schedule_tasks {
 
       # to change the policy, use 'schedulable_tasks' function :
       if (@Work) {
-        $Proc{$ressource} = shift @Work;
-        print "Scheduled task $Proc{$ressource}->{name} on $ressource at time $global_time\n";
+        $Proc[$ressource] = shift @Work;
+        print "Scheduled task $Proc[$ressource]->{name} on $ressource at time $global_time\n";
       }
     }
   } else {
@@ -286,7 +293,7 @@ sub schedulable_tasks {
 sub free_ressources {
   my @result = ();
   for (my $key = 1; $key <= $proc; $key++) {
-    if ($Proc{$key} == 0) {
+    if ($Proc[$key] == 0) {
       #print "Ressource $key free\n";
       push (@result, $key);
     } else {
@@ -295,3 +302,5 @@ sub free_ressources {
   }
   return @result;
 }
+
+
