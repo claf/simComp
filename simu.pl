@@ -23,8 +23,7 @@ my @Work;#global list of tasks
 
 #print "Running $iter iterations with $proc proccessing units";
 
-#my %Time = ("A", 2, "B", 5, "C", 1);
-my %Time;
+my %Processing_Time;
 #my %Calls = (
 #  "A"=> {"B" => 1,},
 #  "B"=> {"C" => 10,},
@@ -116,7 +115,7 @@ sub parse_file {
     my $inc  = shift (@args);
     my $time = shift (@args);
 
-    $Time{$comp} = $time;
+    $Processing_Time{$comp} = $time;
     $Incoming_needed{$comp} = $inc;
   }
 
@@ -172,7 +171,7 @@ sub create_tasks {
 sub insert_task {
   my $type = shift;
 
-  my $comp = new Task ($type, $Time{$type});
+  my $comp = new Task ($type, $Processing_Time{$type});
   foreach my $call (keys (%{$Calls{$type}})) {
     $comp->add_call ($call, $Calls{$type}{$call});
   }
