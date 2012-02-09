@@ -47,7 +47,10 @@ sub delete_task {
     my $self = shift;
 
     if ($self->{executing}->[0]->{remaining_time} == 0) {
+      print "Deleting task\n";
       shift @{$self->{executing}};
+    } else {
+      print "Not deleting task\n";
     }
 }
 

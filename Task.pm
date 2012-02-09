@@ -20,7 +20,7 @@ sub new {
 sub is_finished {
   my $self = shift;
 
-  return $self->{remaining_time};
+  return !($self->{remaining_time});
 }
 
 sub scheduled {
