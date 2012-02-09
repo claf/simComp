@@ -4,3 +4,18 @@ visual analysis
 - simulate MJPEG application
 - how to deal with deadline? not in the simulator
 - how to deal with buffer? (some coin already in the queue BUT not enought)
+
+
+Function list :
+_ trace_init ($file);
+- parse_file ($file);
+- create_task ();
+- insert_task ($type);
+- currently_executed ();
+- delete_task ();
+- move_forward ($time);
+- min_time ();
+- currently_working ();
+- schedule_tasks ();
+- schedulable_tasks ();
+- free_ressources ();

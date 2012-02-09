@@ -1,5 +1,10 @@
 package Component;
 
+use strict;
+use warnings;
+
+my %components;
+
 sub new {
   my $class = shift;
   my $self = {};
@@ -9,7 +14,19 @@ sub new {
   $self->{token_counter} = 0;
   $self->{calls} = {};
   bless($self, $class);
+  $components{$self->{name}} = $self;
   return $self;
+}
+
+sub add_coin {
+  my $self = shift;
+
+  $self->{token_counter}++;
+}
+
+sub get_component_by_name {
+  my $name = shift;
+  return $components{$name};
 }
 
 # Used to add an outgoing arrow to another comp. :
@@ -25,15 +42,16 @@ sub add_call {
 # Used to create a new task :
 sub create_task {
   my $self = shift;
+  my $refWork = shift;
   my $deadline = -1;
 
-  my $task = new Task ($self, $self->{processing_time}, $deadline);
+  my $task = new Task ($self->{name}, $self->{processing_time}, $self, $deadline);
 
   foreach my $comp (keys (%{$self->{calls}})) {
       $task->init_token ($comp, $self->{calls}->{$comp});
   }
 
-  push (@Work, $task);
+  push (@{$refWork}, $task);
 }
 
 # Return default time before next event for comp in argument :
@@ -47,9 +65,10 @@ sub token {
 # Check counter to see if it needs to create a task :
 sub check_counter {
     my $self = shift;
+    my $refWork = shift;
 
     while ($self->{token_counter} >= $self->{token_needed}) {
-	$self->create_task ();
+	$self->create_task ($refWork);
 	$self->{token_counter} -= $self->{token_needed};
     }
 }

@@ -34,11 +34,12 @@ my %Comp;
 my @Work;
 
 
-parse_file ($file);
+parse_file ($file, \@Work);
 
 # Processing unit list initialisation :
 for (my $key = 0; $key < $proc; $key++) {
-  $Proc[$key] = new Processor ("P".$key, 1);;
+  my $id = $key + 1;
+  $Proc[$key] = new Processor ("P".$id, 1);;
 }
 
 # Create the ViTe trace file's header :
@@ -66,7 +67,7 @@ while ($iter)
 
   # create new tasks in @Work :
   increment_counters ();
-  create_tasks();
+  create_tasks(\@Work);
 
   # next step :
   $iter--;
@@ -107,6 +108,7 @@ sub trace_init {
 # Parse application file and fill structures :
 sub parse_file {
   my $file = shift;
+  my $refWork = shift;
   
   open(FILEHANDLER, $file) or die $!;
 
@@ -155,14 +157,15 @@ sub parse_file {
   # Last line contain the first task to schedule :
   @args = split (/,/, $line);
   foreach my $name (@args) {
-      $Comp{$name}->create_task ();
+      $Comp{$name}->create_task ($refWork);
   }
 }
 
 # check the global counter to create new tasks :
 sub create_tasks {
+  my $refWork = shift;
     foreach my $comp (keys (%Comp)) {
-	  $Comp{$comp}->check_counter ();
+	  $Comp{$comp}->check_counter ($refWork);
     }
 }
 
@@ -186,8 +189,13 @@ sub currently_executed {
 
 # delete finished tasks from @Proc :
 sub delete_tasks {
-    foreach my $proc (@Proc) {
-	$proc->delete_task ();
+  my @tasks = currently_executed ();
+    for my $task (@tasks) {
+      if ($task->is_finished ()) {
+
+        print TRACEHANDLER "12 $global_time \"SP\" \"$task->{processor}->{name}\"\n";  
+      	$task->{processor}->delete_task ();
+      }
     }
 }
 
@@ -235,7 +243,7 @@ sub schedule_tasks {
       if (@Work) {
         my $task = shift @Work;
         $proc->execute ($task);
-        print TRACEHANDLER "11 $global_time \"SP\" \"$proc->{name}\" \"$task->{name}\"\n";
+        print TRACEHANDLER "11 $global_time \"SP\" \"$proc->{name}\" \"$task->{type}\"\n";
       }
     }
 }

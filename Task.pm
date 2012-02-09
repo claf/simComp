@@ -1,14 +1,33 @@
 package Task;
 
+use strict;
+use warnings;
+
+
 sub new {
   my $class = shift;
   my $self = {};
   $self->{type} = shift;
   $self->{remaining_time} = shift;
+  $self->{component} = shift;
   $self->{deadline} = shift;
   $self->{next_token} = {};
+  $self->{processor} = 0;
   bless($self, $class);
   return $self;
+}
+
+sub is_finished {
+  my $self = shift;
+
+  return $self->{remaining_time};
+}
+
+sub scheduled {
+  my $self = shift;
+  my $proc = shift;
+
+  $self->{processor} = $proc;
 }
 
 # Used to add an outgoing arrow to another comp. :
@@ -26,9 +45,10 @@ sub move_forward {
   my $time = shift;
   
   $self->{remaining_time} -= $time;
-  foreach my $call ($self->{calls_counters}) {
-    $call -= $time;
+  foreach my $call (keys (%{$self->{next_token}})) {
+    $self->{next_token}->{$call} -= $time;
   }
+  $self->add_coins ();
 }
 
 # Return the minimum time to wait for next event in this task :
@@ -48,13 +68,13 @@ sub min_time {
 sub add_coins {
     my $self = shift;
     
-    foreach my $comp_name (keys (%{$self->{next_token}})) {
-	if ($self->{next_token}{$comp_name} == 0) {
-	    $Comp{$comp_name}->add_coin ();
-	    $self->{next_token}{$comp_name} = $Comp{$self->{type}}->token ($comp_name);
-	}
+    for my $comp_name (keys (%{$self->{next_token}})) {
+      if ($self->{next_token}{$comp_name} == 0) {
+        my $next_component = Component::get_component_by_name($comp_name);
+        $next_component->add_coin();
+        $self->{next_token}{$comp_name} = $self->{component}->token($comp_name);
+      }
     }
-
 }
 
 1;
