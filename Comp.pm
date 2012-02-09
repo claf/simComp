@@ -67,6 +67,10 @@ sub check_counter {
     my $self = shift;
     my $refWork = shift;
 
+    if ($self->{token_needed} == 0) {
+      return;
+    }
+
     while ($self->{token_counter} >= $self->{token_needed}) {
 	$self->create_task ($refWork);
 	$self->{token_counter} -= $self->{token_needed};
