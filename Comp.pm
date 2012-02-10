@@ -48,7 +48,7 @@ sub create_task {
   my $task = new Task ($self->{name}, $self->{processing_time}, $self, $deadline);
 
   foreach my $comp (keys (%{$self->{calls}})) {
-      $task->init_token ($comp, $self->{calls}->{$comp});
+    $task->init_token ($comp, $self->{calls}->{$comp});
   }
 
   push (@{$refWork}, $task);
@@ -56,25 +56,25 @@ sub create_task {
 
 # Return default time before next event for comp in argument :
 sub token {
-    my $self = shift;
-    my $comp = shift;
+  my $self = shift;
+  my $comp = shift;
 
-    return $self->{calls}->{$comp};
+  return $self->{calls}->{$comp};
 }
 
 # Check counter to see if it needs to create a task :
 sub check_counter {
-    my $self = shift;
-    my $refWork = shift;
+  my $self = shift;
+  my $refWork = shift;
 
-    if ($self->{token_needed} == 0) {
-      return;
-    }
+  if ($self->{token_needed} == 0) {
+    return;
+  }
 
-    while ($self->{token_counter} >= $self->{token_needed}) {
-	$self->create_task ($refWork);
-	$self->{token_counter} -= $self->{token_needed};
-    }
+  while ($self->{token_counter} >= $self->{token_needed}) {
+    $self->create_task ($refWork);
+    $self->{token_counter} -= $self->{token_needed};
+  }
 }
 
 1;

@@ -43,7 +43,7 @@ sub init_token {
 sub move_forward {
   my $self = shift;
   my $time = shift;
-  
+
   $self->{remaining_time} -= $time;
   foreach my $call (keys (%{$self->{next_token}})) {
     $self->{next_token}->{$call} -= $time;
@@ -53,28 +53,28 @@ sub move_forward {
 
 # Return the minimum time to wait for next event in this task :
 sub min_time {
-    my $self = shift;
-    my $min = $self->{remaining_time};
+  my $self = shift;
+  my $min = $self->{remaining_time};
 
-    foreach my $comp (keys (%{$self->{next_token}})) {
-	if ($min > $self->{next_token}{$comp}) {
-	    $min = $self->{next_token}{$comp};
-	}
+  foreach my $comp (keys (%{$self->{next_token}})) {
+    if ($min > $self->{next_token}{$comp}) {
+      $min = $self->{next_token}{$comp};
     }
-    return $min;
+  }
+  return $min;
 }
 
 # Add coins to components if needed :
 sub add_coins {
-    my $self = shift;
-    
-    for my $comp_name (keys (%{$self->{next_token}})) {
-      if ($self->{next_token}{$comp_name} == 0) {
-        my $next_component = Component::get_component_by_name($comp_name);
-        $next_component->add_coin();
-        $self->{next_token}{$comp_name} = $self->{component}->token($comp_name);
-      }
+  my $self = shift;
+
+  for my $comp_name (keys (%{$self->{next_token}})) {
+    if ($self->{next_token}{$comp_name} == 0) {
+      my $next_component = Component::get_component_by_name($comp_name);
+      $next_component->add_coin();
+      $self->{next_token}{$comp_name} = $self->{component}->token($comp_name);
     }
+  }
 }
 
 1;

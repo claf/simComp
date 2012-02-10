@@ -27,13 +27,10 @@ my $global_time = 0;
 # Array of processors :
 my @Proc;
 
-# Hash of components :
-my %Comp;
-
 # Global list of tasks :
 my @Work;
 
-
+# Create the component objects and fill them, also create first tasks :
 parse_file ($file, \@Work);
 
 # Processing unit list initialisation :
@@ -56,7 +53,7 @@ while ($iter)
 
   # find the minimal amount of time to next event :
   my $min_time = min_time ();
-  
+
   if ($min_time == 0) {
     #print "\tmin time is 0?!\n";
   }
@@ -69,8 +66,8 @@ while ($iter)
   increment_counters ();
   create_tasks(\@Work);
 
-  # next step :
-  $iter--;
+# next step :
+$iter--;
 }
 
 close FILEHANDLER;
@@ -109,7 +106,7 @@ sub trace_init {
 sub parse_file {
   my $file = shift;
   my $refWork = shift;
-  
+
   open(FILEHANDLER, $file) or die $!;
 
   my $line = <FILEHANDLER>;
@@ -153,27 +150,27 @@ sub parse_file {
   # space :
   $line = <FILEHANDLER>;
   chomp($line);
-  
+
   # Last line contain the first task to schedule :
   @args = split (/,/, $line);
   foreach my $name (@args) {
-      $Comp{$name}->create_task ($refWork);
+    $Comp{$name}->create_task ($refWork);
   }
 }
 
 # check the global counter to create new tasks :
 sub create_tasks {
   my $refWork = shift;
-    foreach my $comp (keys (%Comp)) {
-	  $Comp{$comp}->check_counter ($refWork);
-    }
+  foreach my $comp (keys (%Comp)) {
+    $Comp{$comp}->check_counter ($refWork);
+  }
 }
 
 # increment global counters :
 sub increment_counters {
   my @tasks = currently_executed ();
   foreach my $task (@tasks) {
-      $task->add_coins ();
+    $task->add_coins ();
   }
 }
 
@@ -190,13 +187,13 @@ sub currently_executed {
 # delete finished tasks from @Proc :
 sub delete_tasks {
   my @tasks = currently_executed ();
-    for my $task (@tasks) {
-      if ($task->is_finished ()) {
+  for my $task (@tasks) {
+    if ($task->is_finished ()) {
 
-        print TRACEHANDLER "12 $global_time \"SP\" \"$task->{processor}->{name}\"\n";  
-      	$task->{processor}->delete_task ();
-      }
+      print TRACEHANDLER "12 $global_time \"SP\" \"$task->{processor}->{name}\"\n";  
+      $task->{processor}->delete_task ();
     }
+  }
 }
 
 # update every remaining_time and return the list of (newly?) free ressource
@@ -205,7 +202,7 @@ sub move_forward {
   my $time = shift;
 
   foreach my $proc (currently_working ()) {
-      $proc->move_forward ($time);
+    $proc->move_forward ($time);
   }
 }
 
@@ -215,10 +212,10 @@ sub min_time {
   my $min = 0;
 
   foreach my $task (@tasks) {
-      my $time = $task->min_time ();
-      if (($min == 0) || ($time < $min)) {
-	  $min = $time;
-      }
+    my $time = $task->min_time ();
+    if (($min == 0) || ($time < $min)) {
+      $min = $time;
+    }
   }
 
   return $min;
@@ -228,9 +225,9 @@ sub min_time {
 sub currently_working {
   my @result = ();
   foreach my $proc (@Proc) {
-      if ($proc->is_working()) {
-	  push (@result, $proc);
-      }
+    if ($proc->is_working()) {
+      push (@result, $proc);
+    }
   }
   return @result;
 }
@@ -238,14 +235,14 @@ sub currently_working {
 # schedule tasks onto available ressources :
 sub schedule_tasks {
   # get list of free ressources :
-    my @freeR = free_ressources ();
-    foreach my $proc (@freeR) {
-      if (@Work) {
-        my $task = shift @Work;
-        $proc->execute ($task);
-        print TRACEHANDLER "11 $global_time \"SP\" \"$proc->{name}\" \"$task->{type}\"\n";
-      }
+  my @freeR = free_ressources ();
+  foreach my $proc (@freeR) {
+    if (@Work) {
+      my $task = shift @Work;
+      $proc->execute ($task);
+      print TRACEHANDLER "11 $global_time \"SP\" \"$proc->{name}\" \"$task->{type}\"\n";
     }
+  }
 }
 
 # return the list of schedulable tasks on ONE ressource :

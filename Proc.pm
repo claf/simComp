@@ -34,9 +34,9 @@ sub is_working {
 sub move_forward {
   my $self = shift;
   my $time = shift;
-  
+
   for my $task (@{$self->{executing}}) {
-      $task->move_forward ($time);
+    $task->move_forward ($time);
   }
 
   $self->{global_time} += $time;
@@ -44,19 +44,18 @@ sub move_forward {
 
 # Remove ended tasks :
 sub delete_task {
-    my $self = shift;
+  my $self = shift;
 
-    if ($self->{executing}->[0]->{remaining_time} == 0) {
-      print "Deleting task\n";
-      shift @{$self->{executing}};
-    } else {
-      print "Not deleting task\n";
-    }
+  if ($self->{executing}->[0]->{remaining_time} == 0) {
+    shift @{$self->{executing}};
+  } else {
+    print "Not deleting task\n";
+  }
 }
 
 sub currently_executing {
-    my $self = shift;
-    return $self->{executing}->[0];
+  my $self = shift;
+  return $self->{executing}->[0];
 }
 
 1;
