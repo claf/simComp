@@ -3,7 +3,7 @@ package Component;
 use strict;
 use warnings;
 
-my %components;
+our %components;
 
 sub new {
   my $class = shift;

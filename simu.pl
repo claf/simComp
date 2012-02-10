@@ -80,7 +80,6 @@ close FILEHANDLER;
 # application :
 sub trace_init {
   my $trace_file = shift;
-  my $color = "1.0 0.0 0.0"; 
   if ($header_file ne $trace_file) {
     copy ($header_file, $trace_file) or die "Copy failed: $!";
   } else {
@@ -97,7 +96,8 @@ sub trace_init {
     print TRACEHANDLER "7 0 \"P$proc\" \"P\" \"0\" \"P$proc\"\n";
   }
 
-  foreach my $comp (keys (%Comp)) {
+  foreach my $comp (keys (%Component::components)) {
+    my $color = rand()." ".rand()." ".rand(); 
     print TRACEHANDLER "6 \"$comp\" \"SP\" \"$comp\" \"$color\"\n";
   }
 }
@@ -121,7 +121,6 @@ sub parse_file {
     my $time = shift (@args);
 
     my $comp = new Component ($name, $time, $inc);
-    $Comp{$name} = $comp;
   }
 
   # space :
@@ -142,7 +141,7 @@ sub parse_file {
       my $dest = shift (@args);
       my $token = shift (@args);
 
-      $Comp{$name}->add_call ($dest, $token);
+      $Component::components{$name}->add_call ($dest, $token);
     }
     $line = <FILEHANDLER>;
   }
@@ -154,15 +153,15 @@ sub parse_file {
   # Last line contain the first task to schedule :
   @args = split (/,/, $line);
   foreach my $name (@args) {
-    $Comp{$name}->create_task ($refWork);
+    $Component::components{$name}->create_task ($refWork);
   }
 }
 
 # check the global counter to create new tasks :
 sub create_tasks {
   my $refWork = shift;
-  foreach my $comp (keys (%Comp)) {
-    $Comp{$comp}->check_counter ($refWork);
+  foreach my $comp (keys (%Component::components)) {
+    $Component::components{$comp}->check_counter ($refWork);
   }
 }
 
