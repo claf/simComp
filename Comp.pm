@@ -22,6 +22,8 @@ sub add_coin {
   my $self = shift;
 
   $self->{token_counter}++;
+
+  print "counter for $self->{name} is currently $self->{token_counter}\n";
 }
 
 sub get_component_by_name {
@@ -31,12 +33,18 @@ sub get_component_by_name {
 
 # Used to add an outgoing arrow to another comp. :
 # call : comp_A->add_call ("B", 10);
+# if A is an endless component, then $count is the time between two calls to
+# B.
 sub add_call {
   my $self = shift;
   my $component_name = shift;
   my $count = shift;
 
-  $self->{calls}->{$component_name} = $self->{processing_time} / $count;
+  if ($self->{processing_time} == -1) {
+    $self->{calls}->{$component_name} = $count;
+  } else {
+    $self->{calls}->{$component_name} = $self->{processing_time} / $count;
+  }
 }
 
 # Used to create a new task :

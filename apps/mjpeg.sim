@@ -1,0 +1,12 @@
+# Comp,incoming token needed, execution time,...
+# special case for "0" incoming token needed, the execution time is in fact
+# the ...
+Render,0,-1,Fetch,1,1.6,Decode,1,0.33,Resize,50,3.3
+-
+# Component,linked comp,token inserted,linked comp,tokeninserted,...
+Render,Fetch,20
+Fetch,Decode,50
+Decode,Resize,1
+-
+# First inserted in the workqueue :
+Render

@@ -44,11 +44,14 @@ sub move_forward {
   my $self = shift;
   my $time = shift;
 
-  $self->{remaining_time} -= $time;
+  if ($self->{remaining_time} != -1) {
+    $self->{remaining_time} -= $time;
+  }
+
   foreach my $call (keys (%{$self->{next_token}})) {
     $self->{next_token}->{$call} -= $time;
   }
-  $self->add_coins ();
+  #$self->add_coins ();
 }
 
 # Return the minimum time to wait for next event in this task :
@@ -57,7 +60,7 @@ sub min_time {
   my $min = $self->{remaining_time};
 
   foreach my $comp (keys (%{$self->{next_token}})) {
-    if ($min > $self->{next_token}{$comp}) {
+    if (($min > $self->{next_token}{$comp}) || ($min < 0)) {
       $min = $self->{next_token}{$comp};
     }
   }
@@ -67,11 +70,21 @@ sub min_time {
 # Add coins to components if needed :
 sub add_coins {
   my $self = shift;
+  my $global_time = shift;
+  my $next_component;
 
   for my $comp_name (keys (%{$self->{next_token}})) {
+#    # in order to get rid of precision problem?
+#    if (($self->{remaining_time} == 0) && ($self->{next_token}{$comp_name} != $self->{component}->token($comp_name))) {
+#      print "ok j'en rajoute un dans $comp_name parce que c est presque fini\n";
+#      $next_component = Component::get_component_by_name($comp_name);
+#      $next_component->add_coin();
+#    }
+
     if ($self->{next_token}{$comp_name} == 0) {
-      my $next_component = Component::get_component_by_name($comp_name);
+      $next_component = Component::get_component_by_name($comp_name);
       $next_component->add_coin();
+      print "Adding one coin from $self->{type} to $next_component->{name} counter is now $next_component->{token_counter} at $global_time\n";
       $self->{next_token}{$comp_name} = $self->{component}->token($comp_name);
     }
   }

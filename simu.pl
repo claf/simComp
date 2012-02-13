@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+#use bigrat;
 use File::Copy;
 use Task;
 use Comp;
@@ -22,7 +23,7 @@ my $trace_file = shift;
 my $header_file = "header.vite";
 
 # Starting global time is null :
-my $global_time = 0;
+our $global_time = 0;
 
 # Array of processors :
 my @Proc;
@@ -106,10 +107,18 @@ sub trace_init {
 sub parse_file {
   my $file = shift;
   my $refWork = shift;
+  my $line;
 
   open(FILEHANDLER, $file) or die $!;
 
-  my $line = <FILEHANDLER>;
+  while ($line = <FILEHANDLER>) {
+    if ($line =~ /^\#/) {
+      print "That's a comment\n";
+    } else {
+      last;
+    }
+  }
+
   chomp ($line);
 
   # First line contain each component, its incoming_needed and its execution
@@ -129,9 +138,18 @@ sub parse_file {
     exit 0;
   }
 
+  # comments :
+  while ($line = <FILEHANDLER>) {
+    if ($line =~ /^\#/) {
+      print "That's a comment\n";
+    } else {
+      last;
+    }
+  }
+
   # Next lines contain each component arrow to a son and its inserted coin in
   # one execution :
-  $line = <FILEHANDLER>;
+  #$line = <FILEHANDLER>;
   while ($line !~ /^-\n/) {
     chomp($line);
     @args = split (/,/, $line);
@@ -147,7 +165,13 @@ sub parse_file {
   }
 
   # space :
-  $line = <FILEHANDLER>;
+  while ($line = <FILEHANDLER>) {
+    if ($line =~ /^\#/) {
+      print "That's a comment\n";
+    } else {
+      last;
+    }
+  }
   chomp($line);
 
   # Last line contain the first task to schedule :
@@ -169,7 +193,7 @@ sub create_tasks {
 sub increment_counters {
   my @tasks = currently_executed ();
   foreach my $task (@tasks) {
-    $task->add_coins ();
+    $task->add_coins ($global_time);
   }
 }
 
