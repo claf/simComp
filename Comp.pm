@@ -23,7 +23,7 @@ sub add_coin {
 
   $self->{token_counter}++;
 
-  print "counter for $self->{name} is currently $self->{token_counter}\n";
+  #print "counter for $self->{name} is currently $self->{token_counter}\n";
 }
 
 sub get_component_by_name {

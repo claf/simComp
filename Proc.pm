@@ -8,7 +8,6 @@ sub new {
   my $self = {};
   $self->{name} = shift;
   $self->{frequency} = shift;
-  $self->{global_time} = 0;
   $self->{executing} = [];
   bless($self, $class);
   return $self;
@@ -38,8 +37,6 @@ sub move_forward {
   for my $task (@{$self->{executing}}) {
     $task->move_forward ($time);
   }
-
-  $self->{global_time} += $time;
 }
 
 # Remove ended tasks :
@@ -47,20 +44,9 @@ sub delete_task {
   my $self = shift;
 
   if ($self->{executing}->[0]->{remaining_time} == 0) {
-#    # In order to resolve precision problems, each token must be equal to 0
-#    # here :
-#    for my $comp_name (keys (%{$self->{executing}->[0]->{next_token}})) {
-#      if ($self->{executing}->[0]->{next_token}{$comp_name} != 0) {
-#        my $next_component = Component::get_component_by_name($comp_name);
-#        print "bon un de plus parce qu'il était pas fini!\n";
-#        $next_component->add_coin();
-#      }
-#    }
-
-
     shift @{$self->{executing}};
   } else {
-    print "Not deleting task\n";
+    exit 1;
   }
 }
 

@@ -2,7 +2,7 @@ package Task;
 
 use strict;
 use warnings;
-
+use Math::Round;
 
 sub new {
   my $class = shift;
@@ -45,13 +45,22 @@ sub move_forward {
   my $time = shift;
 
   if ($self->{remaining_time} != -1) {
-    $self->{remaining_time} -= $time;
+    #print "remaining of $self->{type} : $self->{remaining_time} - $time = ";
+    $self->{remaining_time} = nearest (0.00001, $self->{remaining_time} - $time);
+    #print "$self->{remaining_time}\n";
+    if ($self->{remaining_time} < 0) {
+      exit 1;
+    }
   }
 
   foreach my $call (keys (%{$self->{next_token}})) {
-    $self->{next_token}->{$call} -= $time;
+    #print "nextoken to $call : $self->{next_token}->{$call} - $time = ";
+    $self->{next_token}->{$call} = nearest (0.00001, $self->{next_token}->{$call} - $time);
+    #print "$self->{next_token}->{$call}\n";
+    if ($self->{next_token}->{$call} < 0) {
+      exit 1;
+    }
   }
-  #$self->add_coins ();
 }
 
 # Return the minimum time to wait for next event in this task :
@@ -74,17 +83,10 @@ sub add_coins {
   my $next_component;
 
   for my $comp_name (keys (%{$self->{next_token}})) {
-#    # in order to get rid of precision problem?
-#    if (($self->{remaining_time} == 0) && ($self->{next_token}{$comp_name} != $self->{component}->token($comp_name))) {
-#      print "ok j'en rajoute un dans $comp_name parce que c est presque fini\n";
-#      $next_component = Component::get_component_by_name($comp_name);
-#      $next_component->add_coin();
-#    }
-
     if ($self->{next_token}{$comp_name} == 0) {
       $next_component = Component::get_component_by_name($comp_name);
       $next_component->add_coin();
-      print "Adding one coin from $self->{type} to $next_component->{name} counter is now $next_component->{token_counter} at $global_time\n";
+      #print "Adding one coin from $self->{type} to $next_component->{name} counter is now $next_component->{token_counter} at $global_time\n";
       $self->{next_token}{$comp_name} = $self->{component}->token($comp_name);
     }
   }

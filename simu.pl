@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
 use strict;
-#use bigrat;
 use File::Copy;
 use Task;
 use Comp;
@@ -56,7 +55,7 @@ while ($iter)
   my $min_time = min_time ();
 
   if ($min_time == 0) {
-    #print "\tmin time is 0?!\n";
+    exit 1;
   }
 
   # reduce components remaining time and set global time :
@@ -192,7 +191,7 @@ sub create_tasks {
 # increment global counters :
 sub increment_counters {
   my @tasks = currently_executed ();
-  foreach my $task (@tasks) {
+  for my $task (@tasks) {
     $task->add_coins ($global_time);
   }
 }
@@ -212,7 +211,6 @@ sub delete_tasks {
   my @tasks = currently_executed ();
   for my $task (@tasks) {
     if ($task->is_finished ()) {
-
       print TRACEHANDLER "12 $global_time \"SP\" \"$task->{processor}->{name}\"\n";  
       $task->{processor}->delete_task ();
     }
@@ -246,7 +244,7 @@ sub min_time {
 
 # return the list of currently working ressources :
 sub currently_working {
-  my @result = ();
+  my @result;
   foreach my $proc (@Proc) {
     if ($proc->is_working()) {
       push (@result, $proc);
