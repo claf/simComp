@@ -11,19 +11,40 @@ sub new {
   $self->{name} = shift;
   $self->{processing_time} = shift;
   $self->{token_needed} = shift;
+  $self->{concurrency} = shift;
   $self->{token_counter} = 0;
+  $self->{nb_tasks} = 0;
   $self->{calls} = {};
   bless($self, $class);
   $components{$self->{name}} = $self;
   return $self;
 }
 
-sub add_coin {
+sub add_task {
+  my $self = shift;
+  my $refWork = shift;
+  
+  if ($self->{token_needed} == 0) {
+    $self->create_task ($refWork);
+  } else {
+    $self->{token_counter} += $self->{token_needed};
+  }
+}
+
+sub delete_task {
   my $self = shift;
 
-  $self->{token_counter}++;
+  if ($self->{concurrency} != -1) {
+    $self->{nb_tasks}--;
+    if ($self->{nb_tasks} < 0) {
+      exit 1;
+    }
+  }
+}
 
-  #print "counter for $self->{name} is currently $self->{token_counter}\n";
+sub add_coin {
+  my $self = shift;
+  $self->{token_counter}++;
 }
 
 sub get_component_by_name {
@@ -59,6 +80,14 @@ sub create_task {
     $task->init_token ($comp, $self->{calls}->{$comp});
   }
 
+  if ($self->{concurrency} > 0) {
+    if ($self->{nb_tasks} < $self->{concurrency}) {
+      $self->{nb_tasks}++;
+    } else {
+      exit 1;
+    }
+  }
+
   push (@{$refWork}, $task);
 }
 
@@ -66,7 +95,6 @@ sub create_task {
 sub token {
   my $self = shift;
   my $comp = shift;
-
   return $self->{calls}->{$comp};
 }
 
@@ -79,9 +107,18 @@ sub check_counter {
     return;
   }
 
-  while ($self->{token_counter} >= $self->{token_needed}) {
-    $self->create_task ($refWork);
-    $self->{token_counter} -= $self->{token_needed};
+  if ($self->{concurrency} == -1) {
+    while ($self->{token_counter} >= $self->{token_needed}) {
+      $self->create_task ($refWork);
+      $self->{token_counter} -= $self->{token_needed};
+    }
+  } else {
+    while (($self->{token_counter} >= $self->{token_needed}) && ($self->{nb_tasks} < $self->{concurrency})) {
+      if (($self->{nb_tasks} < $self->{concurrency}) || ($self->{concurrency} == -1)) {
+        $self->create_task ($refWork);
+        $self->{token_counter} -= $self->{token_needed};
+      }
+    }
   }
 }
 

@@ -3,6 +3,9 @@ package Processor;
 use strict;
 use warnings;
 
+# TODO : take into account proc freq when moving forward.
+# min_time need to be a proc function now so that task->min_time will be
+# multiplied by proc freq and then return! (be carefull)
 sub new {
   my $class = shift;
   my $self = {};
@@ -44,6 +47,8 @@ sub delete_task {
   my $self = shift;
 
   if ($self->{executing}->[0]->{remaining_time} == 0) {
+    # TODO : decrement le compteur de composant nb_tasks :
+    $self->{executing}->[0]->delete ();
     shift @{$self->{executing}};
   } else {
     exit 1;

@@ -17,16 +17,21 @@ sub new {
   return $self;
 }
 
+sub delete {
+  my $self = shift;
+  my $comp = Component::get_component_by_name($self->{type});
+  
+  $comp->delete_task ();
+}
+
 sub is_finished {
   my $self = shift;
-
   return !($self->{remaining_time});
 }
 
 sub scheduled {
   my $self = shift;
   my $proc = shift;
-
   $self->{processor} = $proc;
 }
 

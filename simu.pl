@@ -42,8 +42,10 @@ for (my $key = 0; $key < $proc; $key++) {
 # Create the ViTe trace file's header :
 trace_init ($trace_file);
 
+create_tasks(\@Work);
+
 # Main simulator loop :
-while ($iter)
+while ($iter > 0)
 {
   # suppress ended tasks :
   delete_tasks ();
@@ -66,8 +68,8 @@ while ($iter)
   increment_counters ();
   create_tasks(\@Work);
 
-# next step :
-$iter--;
+  # next step :
+  $iter -= $min_time;
 }
 
 close FILEHANDLER;
@@ -111,9 +113,7 @@ sub parse_file {
   open(FILEHANDLER, $file) or die $!;
 
   while ($line = <FILEHANDLER>) {
-    if ($line =~ /^\#/) {
-      print "That's a comment\n";
-    } else {
+    if ($line !~ /^\#/) {
       last;
     }
   }
@@ -127,8 +127,9 @@ sub parse_file {
     my $name = shift (@args);
     my $inc  = shift (@args);
     my $time = shift (@args);
+    my $concurrency = shift (@args);
 
-    my $comp = new Component ($name, $time, $inc);
+    my $comp = new Component ($name, $time, $inc, $concurrency);
   }
 
   # space :
@@ -139,9 +140,7 @@ sub parse_file {
 
   # comments :
   while ($line = <FILEHANDLER>) {
-    if ($line =~ /^\#/) {
-      print "That's a comment\n";
-    } else {
+    if ($line !~ /^\#/) {
       last;
     }
   }
@@ -165,18 +164,16 @@ sub parse_file {
 
   # space :
   while ($line = <FILEHANDLER>) {
-    if ($line =~ /^\#/) {
-      print "That's a comment\n";
-    } else {
+    if ($line !~ /^\#/) {
       last;
     }
   }
   chomp($line);
 
-  # Last line contain the first task to schedule :
+  # Last line contain the first tasks to schedule :
   @args = split (/,/, $line);
   foreach my $name (@args) {
-    $Component::components{$name}->create_task ($refWork);
+    $Component::components{$name}->add_task ($refWork);
   }
 }
 
