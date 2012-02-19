@@ -27,11 +27,11 @@ our $global_time = 0;
 # Array of processors :
 my @Proc;
 
-# Global list of tasks :
-my @Work;
+# Tasks structure with priority and fifo order as arguments :
+my $work = new Work (1, 1);
 
 # Create the component objects and fill them, also create first tasks :
-parse_file ($file, \@Work);
+parse_file ($file, $work);
 
 # Processing unit list initialisation :
 for (my $key = 0; $key < $proc; $key++) {
@@ -42,7 +42,7 @@ for (my $key = 0; $key < $proc; $key++) {
 # Create the ViTe trace file's header :
 trace_init ($trace_file);
 
-create_tasks(\@Work);
+create_tasks($work);
 
 # Main simulator loop :
 while ($iter > 0)
@@ -64,9 +64,9 @@ while ($iter > 0)
   move_forward ($min_time);
   $global_time += $min_time;
 
-  # create new tasks in @Work :
+  # create new tasks :
   increment_counters ();
-  create_tasks(\@Work);
+  create_tasks($work);
 
   # next step :
   $iter -= $min_time;
@@ -107,7 +107,7 @@ sub trace_init {
 # Parse application file and fill structures :
 sub parse_file {
   my $file = shift;
-  my $refWork = shift;
+  my $work = shift;
   my $line;
 
   open(FILEHANDLER, $file) or die $!;
@@ -128,8 +128,9 @@ sub parse_file {
     my $inc  = shift (@args);
     my $time = shift (@args);
     my $concurrency = shift (@args);
+    my $priority = shift (@args);
 
-    my $comp = new Component ($name, $time, $inc, $concurrency);
+    my $comp = new Component ($name, $time, $inc, $concurrency, $priority);
   }
 
   # space :
@@ -173,15 +174,15 @@ sub parse_file {
   # Last line contain the first tasks to schedule :
   @args = split (/,/, $line);
   foreach my $name (@args) {
-    $Component::components{$name}->add_task ($refWork);
+    $Component::components{$name}->add_task ($work);
   }
 }
 
 # check the global counter to create new tasks :
 sub create_tasks {
-  my $refWork = shift;
+  my $work = shift;
   foreach my $comp (keys (%Component::components)) {
-    $Component::components{$comp}->check_counter ($refWork);
+    $Component::components{$comp}->check_counter ($work);
   }
 }
 
@@ -255,17 +256,12 @@ sub schedule_tasks {
   # get list of free ressources :
   my @freeR = free_ressources ();
   foreach my $proc (@freeR) {
-    if (@Work) {
-      my $task = shift @Work;
+    if (!($work->is_empty ())) {
+      my $task = $work->get_task ();
       $proc->execute ($task);
       print TRACEHANDLER "11 $global_time \"SP\" \"$proc->{name}\" \"$task->{type}\"\n";
     }
   }
-}
-
-# return the list of schedulable tasks on ONE ressource :
-sub schedulable_tasks {
-  return @Work;
 }
 
 # return the list of available ressources :

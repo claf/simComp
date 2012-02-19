@@ -12,6 +12,7 @@ sub new {
   $self->{processing_time} = shift;
   $self->{token_needed} = shift;
   $self->{concurrency} = shift;
+  $self->{priority} = shift;
   $self->{token_counter} = 0;
   $self->{nb_tasks} = 0;
   $self->{calls} = {};
@@ -22,10 +23,10 @@ sub new {
 
 sub add_task {
   my $self = shift;
-  my $refWork = shift;
+  my $work = shift;
   
   if ($self->{token_needed} == 0) {
-    $self->create_task ($refWork);
+    $self->create_task ($work);
   } else {
     $self->{token_counter} += $self->{token_needed};
   }
@@ -71,7 +72,7 @@ sub add_call {
 # Used to create a new task :
 sub create_task {
   my $self = shift;
-  my $refWork = shift;
+  my $work = shift;
   my $deadline = -1;
 
   my $task = new Task ($self->{name}, $self->{processing_time}, $self, $deadline);
@@ -88,7 +89,7 @@ sub create_task {
     }
   }
 
-  push (@{$refWork}, $task);
+  $work->insert_task ($task, $self->{priority});
 }
 
 # Return default time before next event for comp in argument :
@@ -101,7 +102,7 @@ sub token {
 # Check counter to see if it needs to create a task :
 sub check_counter {
   my $self = shift;
-  my $refWork = shift;
+  my $work = shift;
 
   if ($self->{token_needed} == 0) {
     return;
@@ -109,13 +110,13 @@ sub check_counter {
 
   if ($self->{concurrency} == -1) {
     while ($self->{token_counter} >= $self->{token_needed}) {
-      $self->create_task ($refWork);
+      $self->create_task ($work);
       $self->{token_counter} -= $self->{token_needed};
     }
   } else {
     while (($self->{token_counter} >= $self->{token_needed}) && ($self->{nb_tasks} < $self->{concurrency})) {
       if (($self->{nb_tasks} < $self->{concurrency}) || ($self->{concurrency} == -1)) {
-        $self->create_task ($refWork);
+        $self->create_task ($work);
         $self->{token_counter} -= $self->{token_needed};
       }
     }
