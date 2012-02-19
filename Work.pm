@@ -19,7 +19,7 @@ sub insert_task {
   my $task = shift;
   my $prio = shift;
 
-  push (@{$self->{queue}}[$prio], $task);
+  push (@{$self->{queue}[$prio]}, $task);
 }
 
 sub get_task {
@@ -27,11 +27,11 @@ sub get_task {
   my $prio = $self->{priority};
 
   while ($prio > 0) {
-    if (@{$self->{queue}}[$prio]) {
+    if (@{$self->{queue}[$prio]}) {
       if ($self->{fifo}) {
-        return shift (@{$self->{queue}}[$prio]); 
+        return shift (@{$self->{queue}[$prio]}); 
       } else {
-        return pop (@{$self->{queue}}[$prio]); 
+        return pop (@{$self->{queue}[$prio]}); 
       }
     }
     $prio -= 1;
@@ -43,13 +43,13 @@ sub is_empty {
   my $prio = $self->{priority};
 
   while ($prio > 0) {
-    if (@{$self->{queue}}[$prio]) {
-      return 1;
+    if (@{$self->{queue}[$prio]}) {
+      return 0;
     }
     $prio -= 1;
   }
 
-  return 0;
+  return 1;
 }
 
 1;
