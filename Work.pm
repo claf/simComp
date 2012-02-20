@@ -43,8 +43,10 @@ sub is_empty {
   my $prio = $self->{priority};
 
   while ($prio > 0) {
-    if (@{$self->{queue}[$prio]}) {
-      return 0;
+    if (defined (@{$self->{queue}[$prio]})) {
+      if (@{$self->{queue}[$prio]}) {
+        return 0;
+      }
     }
     $prio -= 1;
   }

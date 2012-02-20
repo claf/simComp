@@ -29,7 +29,7 @@ our $global_time = 0;
 my @Proc;
 
 # Tasks structure with priority and fifo order as arguments :
-my $work = new Work (1, 1);
+my $work = new Work (3, 1);
 
 # Create the component objects and fill them, also create first tasks :
 parse_file ($file, $work);
