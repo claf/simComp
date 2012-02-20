@@ -1,4 +1,4 @@
-Read,0,-1,1,Split,1,x,-1,Audio,20,x,-1,Video,60,x,-1,Sync,80,x,1,Display,1,x,1
+Read,0,-1,1,1,Split,1,x,-1,1,Audio,20,x,-1,1,Video,60,x,-1,1,Sync,80,x,1,1,Display,1,x,1,1
 -
 Read,Split,x
 Split,Audio,20,Video,60
