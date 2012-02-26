@@ -1,17 +1,36 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 use File::Copy;
+use Getopt::Std;
 use Task;
 use Comp;
 use Proc;
 use Work;
 
+my @progpath = split (/\//, $0);
+my $PROGNAME = $progpath[-1];
+my %opts = ();
+
+sub print_usage {
+  print "Usage : $PROGNAME -t time -c cpu -p priority file.sim file.trace\n";
+  print "\t-t\trun until global time is\n";
+  print "\t-c\trun with #cpu processors\n";
+  print "\t-p\tallow #priority different priorities between jobs\n";
+  exit 1;
+}
+
+getopts('t:c:p:',\%opts) or print_usage();
+
 # How many iteration of the main loop :
-my $iter = shift;
+my $iter = $opts{t};
 
 # How many processors to simulate :
-my $proc = shift;
+my $proc = $opts{c};
+
+# Maximum priority for work object :
+my $max_prio = $opts{p};
 
 # Which application file :
 my $file = shift;
@@ -29,7 +48,7 @@ our $global_time = 0;
 my @Proc;
 
 # Tasks structure with priority and fifo order as arguments :
-my $work = new Work (3, 1);
+my $work = new Work ($max_prio, 1);
 
 # Create the component objects and fill them, also create first tasks :
 parse_file ($file, $work);

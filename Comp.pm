@@ -89,7 +89,12 @@ sub create_task {
     }
   }
 
-  $work->insert_task ($task, $self->{priority});
+  if ($work->{priority} < $self->{priority}) {
+    print "Component priority is too high, max priority is $work->{priority}\n";
+    $work->insert_task ($task, $work->{priority});
+  } else {
+    $work->insert_task ($task, $self->{priority});
+  }
 }
 
 # Return default time before next event for comp in argument :
