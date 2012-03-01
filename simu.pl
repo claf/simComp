@@ -86,6 +86,7 @@ while ($iter > 0)
 
   # create new tasks :
   increment_counters ();
+  delete_tasks ();
   create_tasks($work);
 
   # next step :
@@ -145,12 +146,11 @@ sub parse_file {
   my @args = split (/,/, $line);
   while (@args) {
     my $name = shift (@args);
-    my $inc  = shift (@args);
     my $time = shift (@args);
     my $concurrency = shift (@args);
     my $priority = shift (@args);
 
-    my $comp = new Component ($name, $time, $inc, $concurrency, $priority);
+    my $comp = new Component ($name, $time, $concurrency, $priority);
   }
 
   # space :
@@ -179,6 +179,34 @@ sub parse_file {
       my $token = shift (@args);
 
       $Component::components{$name}->add_call ($dest, $token);
+    }
+    $line = <FILEHANDLER>;
+  }
+
+  # space :
+  if ($line !~ /^-\n/ ) {
+    exit 0;
+  }
+
+  # comments :
+  while ($line = <FILEHANDLER>) {
+    if ($line !~ /^\#/) {
+      last;
+    }
+  }
+
+  # Next lines contain each incoming arrow and token needed :
+  #$line = <FILEHANDLER>;
+  while ($line !~ /^-\n/) {
+    chomp($line);
+    @args = split (/,/, $line);
+    my $name = shift (@args);
+
+    while (@args) {
+      my $source = shift (@args);
+      my $token = shift (@args);
+
+      $Component::components{$name}->add_inc ($source, $token);
     }
     $line = <FILEHANDLER>;
   }

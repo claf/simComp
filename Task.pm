@@ -51,7 +51,7 @@ sub move_forward {
 
   if ($self->{remaining_time} != -1) {
     #print "remaining of $self->{type} : $self->{remaining_time} - $time = ";
-    $self->{remaining_time} = nearest (0.00001, $self->{remaining_time} - $time);
+    $self->{remaining_time} = nearest (0.0001, $self->{remaining_time} - $time);
     #print "$self->{remaining_time}\n";
     if ($self->{remaining_time} < 0) {
       exit 1;
@@ -60,7 +60,7 @@ sub move_forward {
 
   foreach my $call (keys (%{$self->{next_token}})) {
     #print "nextoken to $call : $self->{next_token}->{$call} - $time = ";
-    $self->{next_token}->{$call} = nearest (0.00001, $self->{next_token}->{$call} - $time);
+    $self->{next_token}->{$call} = nearest (0.0001, $self->{next_token}->{$call} - $time);
     #print "$self->{next_token}->{$call}\n";
     if ($self->{next_token}->{$call} < 0) {
       exit 1;
@@ -90,7 +90,7 @@ sub add_coins {
   for my $comp_name (keys (%{$self->{next_token}})) {
     if ($self->{next_token}{$comp_name} == 0) {
       $next_component = Component::get_component_by_name($comp_name);
-      $next_component->add_coin();
+      $next_component->add_coin($self->{type});
       #print "Adding one coin from $self->{type} to $next_component->{name} counter is now $next_component->{token_counter} at $global_time\n";
       $self->{next_token}{$comp_name} = $self->{component}->token($comp_name);
     }
