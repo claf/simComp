@@ -12,6 +12,7 @@ sub new {
   $self->{component} = shift;
   $self->{deadline} = shift;
   $self->{next_token} = {};
+  $self->{count_token} = {};
   $self->{processor} = 0;
   bless($self, $class);
   return $self;
@@ -40,8 +41,10 @@ sub init_token {
   my $self = shift;
   my $component_name = shift;
   my $time = shift;
+  my $count = shift;
 
   $self->{next_token}->{$component_name} = $time;
+  $self->{count_token}->{$component_name} = $count;
 }
 
 # This function reduce every remaining time from $time :
@@ -75,7 +78,9 @@ sub min_time {
 
   foreach my $comp (keys (%{$self->{next_token}})) {
     if (($min > $self->{next_token}{$comp}) || ($min < 0)) {
-      $min = $self->{next_token}{$comp};
+      if ($self->{count_token} > 0) {
+        $min = $self->{next_token}{$comp};
+      }
     }
   }
   return $min;
@@ -88,11 +93,12 @@ sub add_coins {
   my $next_component;
 
   for my $comp_name (keys (%{$self->{next_token}})) {
-    if ($self->{next_token}{$comp_name} == 0) {
+    if (($self->{next_token}{$comp_name} == 0) && ($self->{count_token}->{$comp_name} != 0)){
       $next_component = Component::get_component_by_name($comp_name);
       $next_component->add_coin($self->{type});
       #print "Adding one coin from $self->{type} to $next_component->{name} counter is now $next_component->{token_counter} at $global_time\n";
       $self->{next_token}{$comp_name} = $self->{component}->token($comp_name);
+      $self->{count_token}->{$comp_name}--;
     }
   }
 }

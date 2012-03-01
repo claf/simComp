@@ -1,3 +1,7 @@
+- add makefile to run each apps and allow comparison with generated trace
+- make test regression file
+
+
 - create generic applications and their ViTe traces in order to verify good
   schedule policies
 - add priorities (and new schedule policies using "schedule" functions)

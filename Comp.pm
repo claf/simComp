@@ -2,6 +2,7 @@ package Component;
 
 use strict;
 use warnings;
+use Math::Round qw(:all);
 
 our %components;
 
@@ -14,6 +15,7 @@ sub new {
   $self->{priority} = shift;
   $self->{token_needed} = {};
   $self->{token_counter} = {};
+  $self->{tasks_to_create} = {};
   $self->{nb_tasks} = 0;
   $self->{calls} = {};
   bless($self, $class);
@@ -25,6 +27,7 @@ sub add_task {
   my $self = shift;
   my $work = shift;
   
+  # TODO : why dont add tokens?
   $self->create_task ($work);
 
 #  if ($self->{token_needed} == 0) {
@@ -80,8 +83,12 @@ sub add_call {
 
   if ($self->{processing_time} == -1) {
     $self->{calls}->{$component_name} = $count;
+    $self->{tasks_to_create}->{$component_name} = -1;
   } else {
-    $self->{calls}->{$component_name} = $self->{processing_time} / $count;
+    # rounding to 0.01, storing how many tasks to create :
+    $self->{calls}->{$component_name} = nearest_floor (0.01, ($self->{processing_time} / $count));
+    print "Rounding calls for $component_name from $self->{name} to $self->{calls}->{$component_name}, count is $count\n";
+    $self->{tasks_to_create}->{$component_name} = $count;
   }
 }
 
@@ -91,20 +98,19 @@ sub create_task {
   my $work = shift;
   my $deadline = -1;
 
-  # Create the task object :
-  my $task = new Task ($self->{name}, $self->{processing_time}, $self, $deadline);
-
-  foreach my $comp (keys (%{$self->{calls}})) {
-    $task->init_token ($comp, $self->{calls}->{$comp});
-  }
-
   if ($self->{concurrency} > 0) {
     if ($self->{nb_tasks} < $self->{concurrency}) {
       $self->{nb_tasks}++;
     } else {
-      print "Delay task creation for $self->{name}\n";
       exit;
     }
+  }
+
+  # Create the task object :
+  my $task = new Task ($self->{name}, $self->{processing_time}, $self, $deadline);
+
+  foreach my $comp (keys (%{$self->{calls}})) {
+    $task->init_token ($comp, $self->{calls}->{$comp}, $self->{tasks_to_create}->{$comp});
   }
 
   if ($work->{priority} < $self->{priority}) {
