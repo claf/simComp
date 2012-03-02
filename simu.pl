@@ -133,30 +133,28 @@ sub parse_file {
 
   open(FILEHANDLER, $file) or die $!;
 
+  # Skip comment beginning with '#' :
   while ($line = <FILEHANDLER>) {
     if ($line !~ /^\#/) {
       last;
     }
   }
-
   chomp ($line);
 
-  # First line contain each component, its incoming_needed and its execution
-  # time :
-  my @args = split (/,/, $line);
-  while (@args) {
+  # First lines contain each component, its incoming_needed and its execution
+  # time until next step marked with a '-' :
+  while ($line !~ /^-\n/ ) {
+    my @args = split (/,/, $line);
+
     my $name = shift (@args);
     my $time = shift (@args);
     my $concurrency = shift (@args);
     my $priority = shift (@args);
 
     my $comp = new Component ($name, $time, $concurrency, $priority);
-  }
 
-  # space :
-  $line = <FILEHANDLER>;
-  if ($line !~ /^-\n/ ) {
-    exit 0;
+    # Next line :
+    $line = <FILEHANDLER>;
   }
 
   # comments :
@@ -171,7 +169,7 @@ sub parse_file {
   #$line = <FILEHANDLER>;
   while ($line !~ /^-\n/) {
     chomp($line);
-    @args = split (/,/, $line);
+    my @args = split (/,/, $line);
     my $name = shift (@args);
 
     while (@args) {
@@ -199,7 +197,7 @@ sub parse_file {
   #$line = <FILEHANDLER>;
   while ($line !~ /^-\n/) {
     chomp($line);
-    @args = split (/,/, $line);
+    my @args = split (/,/, $line);
     my $name = shift (@args);
 
     while (@args) {
@@ -220,7 +218,7 @@ sub parse_file {
   chomp($line);
 
   # Last line contain the first tasks to schedule :
-  @args = split (/,/, $line);
+  my @args = split (/,/, $line);
   foreach my $name (@args) {
     $Component::components{$name}->add_task ($work);
   }

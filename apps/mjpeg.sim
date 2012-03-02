@@ -1,12 +1,18 @@
-# Comp,incoming token needed, execution time, concurrency, priority,...
-# special case for "0" incoming token needed, the execution time is in fact
-# the ...
-Render,0,-1,1,1,Fetch,1,1.6,1,3,Decode,1,0.033,-1,1,Resize,500,3.3,-1,2
+# component, execution time, concurrency, priority 
+Render,-1,1,1
+Fetch,16,1,3
+Decode,0.33,-1,1
+Resize,33,-1,2
 -
-# Component,linked comp,token inserted,linked comp,tokeninserted,...
+# component, destination, token number
 Render,Fetch,20
 Fetch,Decode,500
 Decode,Resize,1
 -
-# First inserted in the workqueue :
-Render,Fetch,Fetch,Fetch,Fetch,Fetch,Fetch,Fetch,Fetch,Fetch,Fetch
+# component, source, token number
+Fetch,Render,1
+Decode,Fetch,1
+Resize,Decode,500
+-
+# component list first inserted
+Render
