@@ -87,7 +87,7 @@ sub add_call {
   } else {
     # rounding to 0.01, storing how many tasks to create :
     $self->{calls}->{$component_name} = nearest_floor (0.01, ($self->{processing_time} / $count));
-    print "Rounding calls for $component_name from $self->{name} to $self->{calls}->{$component_name}, count is $count\n";
+    #print "Rounding calls for $component_name from $self->{name} to $self->{calls}->{$component_name}, count is $count\n";
     $self->{tasks_to_create}->{$component_name} = $count;
   }
 }
@@ -114,7 +114,7 @@ sub create_task {
   }
 
   if ($work->{priority} < $self->{priority}) {
-    print "Component priority is too high, max priority is $work->{priority}\n";
+    #print "Component priority is too high, max priority is $work->{priority}\n";
     $work->insert_task ($task, $work->{priority});
   } else {
     $work->insert_task ($task, $self->{priority});
