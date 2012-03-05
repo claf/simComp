@@ -5,6 +5,7 @@ use warnings;
 use Math::Round qw(:all);
 
 our %components;
+our $precision;
 
 sub new {
   my $class = shift;
@@ -86,7 +87,11 @@ sub add_call {
     $self->{tasks_to_create}->{$component_name} = -1;
   } else {
     # rounding to 0.01, storing how many tasks to create :
-    $self->{calls}->{$component_name} = nearest_floor (0.01, ($self->{processing_time} / $count));
+    $self->{calls}->{$component_name} = nearest_floor ($precision, ($self->{processing_time} / $count));
+    if ($self->{calls}->{$component_name} == 0) {
+      print "Precision to small ($precision) for this app\n";
+      exit;
+    }
     #print "Rounding calls for $component_name from $self->{name} to $self->{calls}->{$component_name}, count is $count\n";
     $self->{tasks_to_create}->{$component_name} = $count;
   }

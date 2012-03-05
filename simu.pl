@@ -16,12 +16,13 @@ my %opts = ();
 sub print_usage {
   print "Usage : $PROGNAME -t time -c cpu -p priority file.sim file.trace\n";
   print "\t-t\trun until global time is\n";
+  print "\t-f\trun with specific precision\n";
   print "\t-c\trun with #cpu processors\n";
   print "\t-p\tallow #priority different priorities between jobs\n";
   exit 1;
 }
 
-getopts('ht:c:p:',\%opts) or print_usage();
+getopts('f:ht:c:p:',\%opts) or print_usage();
 
 if ((scalar @ARGV < 2) || $opts{h}) {
   print_usage();
@@ -51,6 +52,13 @@ if ($opts{p}) {
 } else {
   print_usage ();
 }
+
+# Global precision of the simulator :
+$Component::precision = 0.01;
+if ($opts{f}) {
+  $Component::precision = $opts{f};
+}
+print "Precision is $Component::precision\n";
 
 # Which application file :
 my $file = shift;
