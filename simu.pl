@@ -21,16 +21,36 @@ sub print_usage {
   exit 1;
 }
 
-getopts('t:c:p:',\%opts) or print_usage();
+getopts('ht:c:p:',\%opts) or print_usage();
+
+if ((scalar @ARGV < 2) || $opts{h}) {
+  print_usage();
+  exit;
+}
 
 # How many iteration of the main loop :
-my $iter = $opts{t};
+my $iter;
+if ($opts{t}) {
+  $iter = $opts{t};
+} else {
+  print_usage ();
+}
 
 # How many processors to simulate :
 my $proc = $opts{c};
+if ($opts{c}) {
+  $proc = $opts{c};
+} else {
+  print_usage ();
+}
 
 # Maximum priority for work object :
 my $max_prio = $opts{p};
+if ($opts{p}) {
+  $max_prio = $opts{p};
+} else {
+  print_usage ();
+}
 
 # Which application file :
 my $file = shift;
