@@ -51,7 +51,7 @@ sub delete_task {
     $self->{executing}->[0]->delete ();
     shift @{$self->{executing}};
   } else {
-    exit 1;
+    die "remaining time not null for task deletion : $self->{executing}->[0]->{remaining_time}";
   }
 }
 

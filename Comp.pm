@@ -44,7 +44,7 @@ sub delete_task {
   if ($self->{concurrency} != -1) {
     $self->{nb_tasks}--;
     if ($self->{nb_tasks} < 0) {
-      exit 1;
+      die "delete too much tasks";
     }
   }
 }
@@ -89,8 +89,7 @@ sub add_call {
     # rounding to 0.01, storing how many tasks to create :
     $self->{calls}->{$component_name} = nearest_floor ($precision, ($self->{processing_time} / $count));
     if ($self->{calls}->{$component_name} == 0) {
-      print "Precision to small ($precision) for this app\n";
-      exit;
+      die "precision to small ($precision) for this app";
     }
     #print "Rounding calls for $component_name from $self->{name} to $self->{calls}->{$component_name}, count is $count\n";
     $self->{tasks_to_create}->{$component_name} = $count;
@@ -107,7 +106,7 @@ sub create_task {
     if ($self->{nb_tasks} < $self->{concurrency}) {
       $self->{nb_tasks}++;
     } else {
-      exit;
+      die "concurrency stuff went wrong!";
     }
   }
 

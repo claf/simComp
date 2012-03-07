@@ -19,7 +19,7 @@ sub print_usage {
   print "\t-f\trun with specific precision\n";
   print "\t-c\trun with #cpu processors\n";
   print "\t-p\tallow #priority different priorities between jobs\n";
-  exit 1;
+  exit;
 }
 
 getopts('f:ht:c:p:',\%opts) or print_usage();
@@ -58,7 +58,6 @@ $Component::precision = 0.01;
 if ($opts{f}) {
   $Component::precision = $opts{f};
 }
-print "Precision is $Component::precision\n";
 
 # Which application file :
 my $file = shift;
@@ -105,7 +104,7 @@ while ($iter > 0)
   my $min_time = min_time ();
 
   if ($min_time == 0) {
-    exit 1;
+    die "min time null";
   }
 
   # reduce components remaining time and set global time :
@@ -134,8 +133,7 @@ sub trace_init {
   if ($header_file ne $trace_file) {
     copy ($header_file, $trace_file) or die "Copy failed: $!";
   } else {
-    print "Can't have the same filename ($trace_file) as $header_file\n";
-    exit 0;
+    die "Can't have the same filename ($trace_file) as $header_file";
   }
 
   open(TRACEHANDLER, '>>' . $trace_file) or die $!;
@@ -211,7 +209,7 @@ sub parse_file {
 
   # space :
   if ($line !~ /^-\n/ ) {
-    exit 0;
+    die "parse error";
   }
 
   # comments :

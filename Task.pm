@@ -53,11 +53,11 @@ sub move_forward {
   my $time = shift;
 
   if ($self->{remaining_time} != -1) {
-    #print "remaining of $self->{type} : $self->{remaining_time} - $time = ";
+    print "remaining of $self->{type} : $self->{remaining_time} - $time = ";
     $self->{remaining_time} = $self->{remaining_time} - $time;
-    #print "$self->{remaining_time}\n";
+    print "$self->{remaining_time}\n";
     if ($self->{remaining_time} < 0) {
-      exit 1;
+      die "remaining time negative : $self->{remaining_time} min time was $time";
     }
   }
 
@@ -65,8 +65,8 @@ sub move_forward {
     #print "nextoken to $call : $self->{next_token}->{$call} - $time = ";
     $self->{next_token}->{$call} = $self->{next_token}->{$call} - $time;
     #print "$self->{next_token}->{$call}\n";
-    if ($self->{next_token}->{$call} < 0) {
-      exit 1;
+    if (($self->{next_token}->{$call} < 0) && ($self->{count_token}->{$call} != 0)) {
+      die "next token negative : $self->{next_token}->{$call}";
     }
   }
 }
