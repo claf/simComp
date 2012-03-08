@@ -14,15 +14,16 @@ my $PROGNAME = $progpath[-1];
 my %opts = ();
 
 sub print_usage {
-  print "Usage : $PROGNAME -t time -c cpu -p priority file.sim file.trace\n";
+  print "Usage : $PROGNAME -t time -c cpu -p priority -o fifo/lifo file.sim file.trace\n";
   print "\t-t\trun until global time is\n";
   print "\t-f\trun with specific precision\n";
   print "\t-c\trun with #cpu processors\n";
   print "\t-p\tallow #priority different priorities between jobs\n";
+  print "\t-o\tdefine reply order (fifo or lifo)\n";
   exit;
 }
 
-getopts('f:ht:c:p:',\%opts) or print_usage();
+getopts('o:f:ht:c:p:',\%opts) or print_usage();
 
 if ((scalar @ARGV < 2) || $opts{h}) {
   print_usage();
@@ -46,9 +47,10 @@ if ($opts{c}) {
 }
 
 # Maximum priority for work object :
-my $max_prio = $opts{p};
+my $max_prio;
 if ($opts{p}) {
   $max_prio = $opts{p};
+  print "Priority is now set to $max_prio\n";
 } else {
   print_usage ();
 }
@@ -57,6 +59,15 @@ if ($opts{p}) {
 $Component::precision = 0.01;
 if ($opts{f}) {
   $Component::precision = $opts{f};
+}
+
+# Work reply order :
+my $order = 1; #fifo by default
+if ($opts{o}) {
+  if ($opts{o} eq "lifo") {
+    $order = 0;
+    print "Using lifo order\n";
+  }
 }
 
 # Which application file :
@@ -75,7 +86,7 @@ our $global_time = 0;
 my @Proc;
 
 # Tasks structure with priority and fifo order as arguments :
-my $work = new Work ($max_prio, 1);
+my $work = new Work ($max_prio, $order);
 
 # Create the component objects and fill them, also create first tasks :
 parse_file ($file, $work);
