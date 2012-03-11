@@ -14,8 +14,10 @@ my $PROGNAME = $progpath[-1];
 my %opts = ();
 
 sub print_usage {
+  print "simComp v0.9\n";
   print "Usage : $PROGNAME -t time -c cpu -p priority -o fifo/lifo file.sim file.trace\n";
   print "\t-t\trun until global time is\n";
+  print "\t-h\tprint this help\n";
   print "\t-f\trun with specific precision\n";
   print "\t-c\trun with #cpu processors\n";
   print "\t-p\tallow #priority different priorities between jobs\n";
