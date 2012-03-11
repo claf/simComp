@@ -15,4 +15,4 @@ Decode,Fetch,1
 Resize,Decode,500
 -
 # component list first inserted
-Render
+Render,Fetch,Fetch,Fetch,Fetch,Fetch
