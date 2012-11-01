@@ -28,14 +28,14 @@ sub add_task {
   my $self = shift;
   my $work = shift;
   
-  # TODO : why dont add tokens?
-  $self->create_task ($work);
-
-#  if ($self->{token_needed} == 0) {
-#    $self->create_task ($work);
-#  } else {
-#    $self->{token_counter} += $self->{token_needed};
-#  }
+  # Add token instead of creating task because of concurrency matters :
+  if (!keys (%{$self->{token_needed}})) {
+    $self->create_task ($work);
+  } else {
+    for my $comp (keys ($self->{token_needed})) {
+      $self->{token_counter}->{$comp} += $self->{token_needed}->{$comp};
+  }
+  }
 }
 
 sub delete_task {

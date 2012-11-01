@@ -1,18 +1,18 @@
 # component, execution time, concurrency, priority 
 Render,-1,1,1
-Fetch,1.6,1,3
-Decode,0.032,-1,1
-Resize,3.3,-1,2
+Fetch,2,1,3
+Decode,0.33,-1,1
+Resize,3,-1,2
 -
 # component, destination, token number
-Render,Fetch,20
-Fetch,Decode,500
+Render,Fetch,2
+Fetch,Decode,10
 Decode,Resize,1
 -
 # component, source, token number
 Fetch,Render,1
 Decode,Fetch,1
-Resize,Decode,500
+Resize,Decode,10
 -
 # component list first inserted
 Render,Fetch,Fetch,Fetch,Fetch,Fetch
